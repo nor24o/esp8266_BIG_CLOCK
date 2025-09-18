@@ -4,9 +4,7 @@
 #include <ArduinoOTA.h>
 #include <math.h>
 #include <stdarg.h>
-
 #include <NTPClient.h>
-// WiFiUdp is already included above
 
 // --- PIN DEFINITIONS AND CONSTANTS ---
 const int DATA_PIN = 12;
@@ -31,37 +29,15 @@ const long utcOffsetInSeconds = 3 * 3600;
 // --- ANIMATION DATA ---
 const int NUM_ANIM_STEPS = 28;
 const byte animationFrames[NUM_ANIM_STEPS][4] = {
-    // Digit 4 (Leftmost)
-    {0b00000001, 0, 0, 0},
-    {0b00100000, 0, 0, 0},
-    {0b00010000, 0, 0, 0},
-    {0b00001000, 0, 0, 0},
-    {0, 0b00010000, 0, 0},
-    {0, 0b00100000, 0, 0},
-    {0, 0b00000001, 0, 0},
-    // Digit 3
-    {0, 0b00000010, 0, 0},
-    {0, 0b00000100, 0, 0},
-    {0, 0b10000000, 0, 0},
-    {0, 0, 0b00010000, 0},
-    {0, 0, 0b00100000, 0},
-    {0, 0, 0b00000001, 0},
-    {0, 0, 0b00000010, 0},
-    // Digit 2
-    {0, 0, 0b00000100, 0},
-    {0, 0, 0b10000000, 0},
-    {0, 0, 0, 0b00010000},
-    {0, 0, 0, 0b00100000},
-    {0, 0, 0, 0b00000001},
-    {0, 0, 0, 0b00000010},
-    {0, 0, 0, 0b00000100},
-    // Digit 1 (Rightmost)
-    {0, 0, 0, 0b00001000},
-    {0, 0, 0b10000000, 0},
-    {0, 0, 0b00001000, 0},
-    {0, 0b10000000, 0, 0},
-    {0, 0b00001000, 0, 0},
-    {0b00000100, 0, 0, 0},
+    {0b00000001, 0, 0, 0}, {0b00100000, 0, 0, 0}, {0b00010000, 0, 0, 0},
+    {0b00001000, 0, 0, 0}, {0, 0b00010000, 0, 0}, {0, 0b00100000, 0, 0},
+    {0, 0b00000001, 0, 0}, {0, 0b00000010, 0, 0}, {0, 0b00000100, 0, 0},
+    {0, 0b10000000, 0, 0}, {0, 0, 0b00010000, 0}, {0, 0, 0b00100000, 0},
+    {0, 0, 0b00000001, 0}, {0, 0, 0b00000010, 0}, {0, 0, 0b00000100, 0},
+    {0, 0, 0b10000000, 0}, {0, 0, 0, 0b00010000}, {0, 0, 0, 0b00100000},
+    {0, 0, 0, 0b00000001}, {0, 0, 0, 0b00000010}, {0, 0, 0, 0b00000100},
+    {0, 0, 0, 0b00001000}, {0, 0, 0b10000000, 0}, {0, 0, 0b00001000, 0},
+    {0, 0b10000000, 0, 0}, {0, 0b00001000, 0, 0}, {0b00000100, 0, 0, 0},
     {0b00000010, 0, 0, 0}};
 
 const byte CONF[4] = {0b01011000, 0b01011100, 0b01010100, 0b01110001}; // C O n F
@@ -87,19 +63,20 @@ const unsigned long OVERRIDE_DURATION = 20000; // 20 seconds
 // --- TIME VARIABLES ---
 int hh = 0, mm = 0, ss = 0;
 uint32_t targetTime = 0;
+// *** NEW VARIABLES FOR ROBUST NTP SYNC ***
+bool timeSuccessfullySet = false;
+unsigned long lastNtpAttempt = 0;
 
 // --- NETWORKING OBJECTS ---
 WiFiServer telnetServer(23);
 WiFiClient telnetClient;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
-
-// *** NEW: UDP listener for commands ***
-const unsigned int UDP_PORT = 4210; // Port to listen on for UDP commands
+const unsigned int UDP_PORT = 4210;
 WiFiUDP udpListener;
-char packetBuffer[255]; // Buffer to hold incoming UDP packet data
+char packetBuffer[255];
 
-// --- LOGGING PROXY (Unchanged) ---
+// --- LOGGING PROXY ---
 class SerialMirror : public Print
 {
 public:
@@ -138,8 +115,11 @@ void displayInteger(int num);
 void displayTemperature(float temp);
 void displayTime(int hours, int minutes, bool colonOn);
 void showLastIPPart();
-void handleUdpCommands(); // *** NEW: Function to handle UDP packet parsing
+void handleUdpCommands();
 
+// =======================================================
+// ==================== SETUP ============================
+// =======================================================
 void setup()
 {
   Serial.begin(115200);
@@ -183,17 +163,26 @@ void setup()
   telnetServer.setNoDelay(true);
   LOG_PRINTLN("\nTelnet server started");
 
-  // *** NEW: Start the UDP listener ***
   udpListener.begin(UDP_PORT);
   LOG_PRINTF("UDP listener started on port %d\n", UDP_PORT);
-
+  
+  // *** MODIFIED TIME SYNC LOGIC ***
   timeClient.begin();
-  timeClient.update();
-  hh = timeClient.getHours();
-  mm = timeClient.getMinutes();
-  ss = timeClient.getSeconds();
-  LOG_PRINTF("Initial time: %02d:%02d:%02d\n", hh, mm, ss);
-
+  LOG_PRINT("Attempting initial NTP sync... ");
+  if (timeClient.forceUpdate()) { // forceUpdate is better for the first sync
+    timeSuccessfullySet = true;
+    hh = timeClient.getHours();
+    mm = timeClient.getMinutes();
+    ss = timeClient.getSeconds();
+    LOG_PRINTF("Success! Time is %02d:%02d:%02d\n", hh, mm, ss);
+  } else {
+    timeSuccessfullySet = false;
+    hh = 0; mm = 0; ss = 0; // Start at 00:00 so it's clear time isn't set
+    LOG_PRINTLN("Failed. Will retry automatically.");
+  }
+  
+  lastNtpAttempt = millis(); // Start the sync timer
+  
   setAutoBrightness();
   lastHourChecked = hh;
 
@@ -201,112 +190,114 @@ void setup()
   targetTime = millis();
 }
 
-void loop()
-{
-  // --- 1. HANDLE TIMEKEEPING ---
-  if (targetTime < millis())
-  {
+// =======================================================
+// ==================== LOOP =============================
+// =======================================================
+void loop() {
+  // --- 1. HANDLE NTP SYNCHRONIZATION (NEW LOGIC) ---
+  unsigned long currentMillis = millis();
+  // If time isn't set, try every 30s. If it is set, update every hour.
+  unsigned long ntpInterval = timeSuccessfullySet ? 3600000UL : 30000UL; 
+
+  if (WiFi.status() == WL_CONNECTED && (currentMillis - lastNtpAttempt > ntpInterval)) {
+    LOG_PRINT("Attempting NTP sync... ");
+    if (timeClient.update()) {
+      // Sync was successful, so update our local time variables
+      hh = timeClient.getHours();
+      mm = timeClient.getMinutes();
+      ss = timeClient.getSeconds();
+      
+      if (!timeSuccessfullySet) {
+        LOG_PRINTLN("Initial sync successful!");
+        timeSuccessfullySet = true; // Mark that we have good time now
+      } else {
+        LOG_PRINTLN("Periodic sync successful.");
+      }
+    } else {
+      LOG_PRINTLN("Sync failed.");
+    }
+    lastNtpAttempt = currentMillis; // Reset the timer for the next attempt
+  }
+
+  // --- 2. HANDLE LOCAL TIMEKEEPING ---
+  if (targetTime < millis()) {
     targetTime += 1000;
     ss++;
-    if (ss > 59)
-    {
+    if (ss > 59) {
       ss = 0;
       mm++;
-      if (mm > 59)
-      {
+      if (mm > 59) {
         mm = 0;
         hh++;
-        if (hh > 23)
-        {
+        if (hh > 23) {
           hh = 0;
-          timeClient.update(); // Daily NTP Sync
-          hh = timeClient.getHours();
-          mm = timeClient.getMinutes();
-          ss = timeClient.getSeconds();
+          // The old daily sync call that was here has been REMOVED.
         }
       }
     }
   }
 
-  // --- 2. HANDLE OTA, TELNET, AND UDP ---
+  // --- 3. HANDLE OTA, TELNET, AND UDP ---
   ArduinoOTA.handle();
-
-  // *** NEW: Check for and handle UDP packets ***
   handleUdpCommands();
 
-  if (telnetServer.hasClient())
-  {
-    if (!telnetClient || !telnetClient.connected())
-    {
+  if (telnetServer.hasClient()) {
+    if (!telnetClient || !telnetClient.connected()) {
       if (telnetClient)
         telnetClient.stop();
       telnetClient = telnetServer.accept();
-    }
-    else
-    {
+    } else {
       telnetServer.accept().stop();
     }
   }
 
-  // --- 3. PARSE TELNET COMMANDS ---
-  if (telnetClient && telnetClient.connected())
-  {
-    while (telnetClient.available())
-    {
+  if (telnetClient && telnetClient.connected()) {
+    while (telnetClient.available()) {
       String input = telnetClient.readStringUntil('\n');
       input.trim();
-      if (input.length() > 0)
-      {
+      if (input.length() > 0) {
         LOG_PRINTLN("Received Telnet: " + input);
         char command = input.charAt(0);
         String argument = input.substring(1);
         argument.trim();
 
-        switch (command)
-        {
+        switch (command) {
         case 'a': // Auto Brightness
           autoBrightnessEnabled = true;
           lastHourChecked = -1; // Force immediate update
           LOG_PRINTLN("Auto brightness enabled.");
           break;
-        case 'b':
-        { // Manual Brightness
+        case 'b': { // Manual Brightness
           autoBrightnessEnabled = false;
           int brightness = constrain(argument.toInt(), 0, 255);
           analogWrite(DIGITS_VCC, brightness);
           LOG_PRINTF("Manual brightness set to %d\n", brightness);
           break;
         }
-        case 'f':
-        { // Display Float
+        case 'f': { // Display Float
           displayFloat(argument.toFloat());
           currentMode = OVERRIDE;
           overrideStartTime = millis();
           break;
         }
-        case 'i':
-        { // Display Integer
+        case 'i': { // Display Integer
           displayInteger(argument.toInt());
           currentMode = OVERRIDE;
           overrideStartTime = millis();
           break;
         }
-        case 't':
-        { // Display Temperature
+        case 't': { // Display Temperature
           displayTemperature(argument.toFloat());
           currentMode = OVERRIDE;
           overrideStartTime = millis();
           break;
         }
-        case 'h':
-        { // Set Time
+        case 'h': { // Set Time
           int sepIndex = argument.indexOf(':');
-          if (sepIndex != -1)
-          {
+          if (sepIndex != -1) {
             int hours = argument.substring(0, sepIndex).toInt();
             int minutes = argument.substring(sepIndex + 1).toInt();
-            if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60)
-            {
+            if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60) {
               hh = hours;
               mm = minutes;
               ss = 0;
@@ -330,35 +321,28 @@ void loop()
   }
 
   // --- 4. MANAGE DISPLAY STATE ---
-  if (autoBrightnessEnabled && hh != lastHourChecked)
-  {
+  if (autoBrightnessEnabled && hh != lastHourChecked) {
     setAutoBrightness();
     lastHourChecked = hh;
   }
-
-  if ((currentMode == OVERRIDE || currentMode == ANIMATION) && (millis() - overrideStartTime > OVERRIDE_DURATION))
-  {
+  if ((currentMode == OVERRIDE || currentMode == ANIMATION) && (millis() - overrideStartTime > OVERRIDE_DURATION)) {
     currentMode = IDLE_TIME;
   }
-
-  switch (currentMode)
-  {
-  case IDLE_TIME:
-  {
-    bool colonState = (ss % 2 == 0);
-    displayTime(hh, mm, colonState);
-    break;
-  }
-  case ANIMATION:
-  {
-    int animSpeed = 50;
-    int animStep = ((millis() - overrideStartTime) / animSpeed) % NUM_ANIM_STEPS;
-    displayAnimationStep(animStep);
-    break;
-  }
-  case OVERRIDE:
-    // Do nothing, the value is static
-    break;
+  switch (currentMode) {
+    case IDLE_TIME: {
+      bool colonState = (ss % 2 == 0);
+      displayTime(hh, mm, colonState);
+      break;
+    }
+    case ANIMATION: {
+      int animSpeed = 50;
+      int animStep = ((millis() - overrideStartTime) / animSpeed) % NUM_ANIM_STEPS;
+      displayAnimationStep(animStep);
+      break;
+    }
+    case OVERRIDE:
+      // Do nothing, the value is static
+      break;
   }
 }
 
@@ -366,43 +350,32 @@ void loop()
 // ==================== FUNCTIONS ========================
 // =======================================================
 
-/**
- * @brief *** NEW *** Checks for and processes incoming UDP packets.
- * Command format: a single character followed by a value (e.g., "t23.5", "b100").
- */
-void handleUdpCommands()
-{
+void handleUdpCommands() {
   int packetSize = udpListener.parsePacket();
-  if (packetSize)
-  {
+  if (packetSize) {
     int len = udpListener.read(packetBuffer, 255);
-    if (len > 0)
-    {
+    if (len > 0) {
       packetBuffer[len] = 0; // Null-terminate the string
     }
     LOG_PRINTF("Received UDP packet from %s: %s\n", udpListener.remoteIP().toString().c_str(), packetBuffer);
 
     String input = String(packetBuffer);
     input.trim();
-    if (input.length() > 0)
-    {
+    if (input.length() > 0) {
       char command = input.charAt(0);
       String argument = input.substring(1);
       argument.trim();
 
-      switch (command)
-      {
-      case 't':
-      { // Display Temperature
+      switch (command) {
+      case 't': { // Display Temperature
         LOG_PRINTF("UDP: Displaying temperature %s\n", argument.c_str());
         displayTemperature(argument.toFloat());
         currentMode = OVERRIDE;
         overrideStartTime = millis();
         break;
       }
-      case 'b':
-      {                                // Manual Brightness
-        autoBrightnessEnabled = false; // A manual setting should disable auto mode
+      case 'b': { // Manual Brightness
+        autoBrightnessEnabled = false; 
         int brightness = constrain(argument.toInt(), 0, 255);
         analogWrite(DIGITS_VCC, brightness);
         LOG_PRINTF("UDP: Manual brightness set to %d\n", brightness);
@@ -421,25 +394,21 @@ void handleUdpCommands()
   }
 }
 
-// Function to show the last part of the IP address
-void showLastIPPart()
-{
+void showLastIPPart() {
   IPAddress ip = WiFi.localIP();
   int lastIPPart = ip[3];
   displayInteger(lastIPPart);
   delay(5000);
 }
 
-void displayAnimationStep(int step)
-{
+void displayAnimationStep(int step) {
   if (step < 0 || step >= NUM_ANIM_STEPS)
     return;
   updateDisplay(animationFrames[step][0], animationFrames[step][1],
                 animationFrames[step][2], animationFrames[step][3]);
 }
 
-void setAutoBrightness()
-{
+void setAutoBrightness() {
   int newBrightness;
   if (hh >= 22 || hh < 5)
     newBrightness = BRIGHTNESS_NIGHT;
@@ -451,8 +420,7 @@ void setAutoBrightness()
   analogWrite(DIGITS_VCC, newBrightness);
 }
 
-void displayTime(int hours, int minutes, bool colonOn)
-{
+void displayTime(int hours, int minutes, bool colonOn) {
   hours = constrain(hours, 0, 23);
   minutes = constrain(minutes, 0, 59);
   int digits[4];
@@ -469,42 +437,41 @@ void displayTime(int hours, int minutes, bool colonOn)
   updateDisplay(p4, p3, p2, p1);
 }
 
-void OtaConfig()
-{
+void OtaConfig() {
   ArduinoOTA.setHostname("myesp8266");
   ArduinoOTA.setPassword("admin");
-  ArduinoOTA.onStart([]()
-                     { LOG_PRINTLN("Start updating " + String((ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem")); });
-  ArduinoOTA.onEnd([]()
-                   { LOG_PRINTLN("\nEnd"); });
-  ArduinoOTA.onProgress([](unsigned int p, unsigned int t)
-                        { LOG_PRINTF("Progress: %u%%\r", (p / (t / 100))); });
-  ArduinoOTA.onError([](ota_error_t error)
-                     {
+  ArduinoOTA.onStart([]() {
+    LOG_PRINTLN("Start updating " + String((ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem"));
+  });
+  ArduinoOTA.onEnd([]() {
+    LOG_PRINTLN("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int p, unsigned int t) {
+    LOG_PRINTF("Progress: %u%%\r", (p / (t / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
     LOG_PRINTF("Error[%u]: ", error);
     if (error == OTA_AUTH_ERROR) LOG_PRINTLN("Auth Failed");
     else if (error == OTA_BEGIN_ERROR) LOG_PRINTLN("Begin Failed");
     else if (error == OTA_CONNECT_ERROR) LOG_PRINTLN("Connect Failed");
     else if (error == OTA_RECEIVE_ERROR) LOG_PRINTLN("Receive Failed");
-    else if (error == OTA_END_ERROR) LOG_PRINTLN("End Failed"); });
+    else if (error == OTA_END_ERROR) LOG_PRINTLN("End Failed");
+  });
   ArduinoOTA.begin();
   LOG_PRINTLN("OTA Ready");
   LOG_PRINT("IP address: ");
   LOG_PRINTLN(WiFi.localIP());
 }
 
-byte getPattern(int digit, bool dpOn)
-{
+byte getPattern(int digit, bool dpOn) {
   byte pattern = (digit >= 0 && digit <= 9) ? digitPatterns_anode[digit] : (digit == -1 ? MINUS_PATTERN : BLANK_PATTERN);
-  if (dpOn)
-  {
+  if (dpOn) {
     pattern |= 0x80;
   }
   return pattern;
 }
 
-void updateDisplay(byte pattern4, byte pattern3, byte pattern2, byte pattern1)
-{
+void updateDisplay(byte pattern4, byte pattern3, byte pattern2, byte pattern1) {
   digitalWrite(LATCH_PIN, LOW);
   shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, pattern4);
   shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, pattern3);
@@ -513,26 +480,20 @@ void updateDisplay(byte pattern4, byte pattern3, byte pattern2, byte pattern1)
   digitalWrite(LATCH_PIN, HIGH);
 }
 
-void displayInteger(int num)
-{
+void displayInteger(int num) {
   num = constrain(num, -999, 9999);
   bool isNegative = num < 0;
   num = abs(num);
   int digits[4] = {num % 10, (num / 10) % 10, (num / 100) % 10, (num / 1000) % 10};
   bool nonZeroFound = false;
-  for (int pos = 3; pos > 0; pos--)
-  {
-    if (digits[pos] == 0 && !nonZeroFound)
-    {
+  for (int pos = 3; pos > 0; pos--) {
+    if (digits[pos] == 0 && !nonZeroFound) {
       digits[pos] = -2;
-    }
-    else
-    {
+    } else {
       nonZeroFound = true;
     }
   }
-  if (isNegative)
-  {
+  if (isNegative) {
     if (digits[3] == -2)
       digits[3] = -1;
     else if (digits[2] == -2)
@@ -541,16 +502,13 @@ void displayInteger(int num)
   updateDisplay(getPattern(digits[3], false), getPattern(digits[2], false), getPattern(digits[1], false), getPattern(digits[0], false));
 }
 
-void displayFloat(float num)
-{
+void displayFloat(float num) {
   num = constrain(num, -99.9, 999.9);
   displayTemperature(num); // This function is already designed for this format
 }
 
-void displayTemperature(float temp)
-{
-  if (isnan(temp) || temp > 999.9 || temp < -99.9)
-  {
+void displayTemperature(float temp) {
+  if (isnan(temp) || temp > 999.9 || temp < -99.9) {
     updateDisplay(MINUS_PATTERN, MINUS_PATTERN, MINUS_PATTERN, MINUS_PATTERN);
     return;
   }
@@ -559,26 +517,17 @@ void displayTemperature(float temp)
   int value = (int)round(absNum * 10);
   int digits[4] = {value % 10, (value / 10) % 10, (value / 100) % 10, (value / 1000) % 10};
 
-  // Blank leading zeros up to the decimal point
-  for (int pos = 3; pos > 1; pos--)
-  {
-    if (digits[pos] == 0)
-    {
+  for (int pos = 3; pos > 1; pos--) {
+    if (digits[pos] == 0) {
       digits[pos] = -2;
-    }
-    else
-    {
+    } else {
       break;
     }
   }
 
-  if (isNegative)
-  {
-    // Find the first blank spot for the minus sign
-    for (int pos = 3; pos >= 0; pos--)
-    {
-      if (digits[pos] == -2)
-      {
+  if (isNegative) {
+    for (int pos = 3; pos >= 0; pos--) {
+      if (digits[pos] == -2) {
         digits[pos] = -1;
         break;
       }
