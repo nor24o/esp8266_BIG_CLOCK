@@ -1,6 +1,6 @@
 {
     "recommendations": [
-        "pioarduino.pioarduino-ide",
+     //   "pioarduino.pioarduino-ide",
         "platformio.platformio-ide"
     ],
     "unwantedRecommendations": [
