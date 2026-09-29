@@ -1,0 +1,644 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 860" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117" />
+      <stop offset="100%" stop-color="#161b22" />
+    </linearGradient>
+
+    <!-- Component Card Gradients -->
+    <linearGradient id="mcuGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c2430" />
+      <stop offset="100%" stop-color="#101720" />
+    </linearGradient>
+
+    <linearGradient id="chipGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#24292e" />
+      <stop offset="100%" stop-color="#181c20" />
+    </linearGradient>
+
+    <linearGradient id="dispGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#141920" />
+      <stop offset="100%" stop-color="#0a0d12" />
+    </linearGradient>
+
+    <linearGradient id="pwrGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2c1a1a" />
+      <stop offset="100%" stop-color="#190e0e" />
+    </linearGradient>
+
+    <!-- Shadows -->
+    <filter id="boxShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.5" />
+    </filter>
+    <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#3fb950" flood-opacity="0.7" />
+    </filter>
+    <filter id="glowAmber" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#d29922" flood-opacity="0.7" />
+    </filter>
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#58a6ff" flood-opacity="0.7" />
+    </filter>
+    <filter id="glowPurple" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#bc8cff" flood-opacity="0.7" />
+    </filter>
+  </defs>
+
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .title { font-size: 22px; font-weight: 700; fill: #58a6ff; letter-spacing: 0.5px; }
+    .subtitle { font-size: 13px; fill: #8b949e; }
+    .header-box { font-size: 14px; font-weight: 600; fill: #f0f6fc; }
+    .pin-label { font-size: 11px; font-weight: 500; fill: #c9d1d9; }
+    .pin-name { font-size: 11px; font-weight: 600; }
+    .chip-title { font-size: 13px; font-weight: 700; fill: #f0f6fc; }
+    .chip-sub { font-size: 10px; fill: #8b949e; }
+    .disp-title { font-size: 14px; font-weight: 700; fill: #ff7b72; }
+    .wire-label { font-size: 10px; font-weight: 600; }
+    .legend-text { font-size: 11px; fill: #c9d1d9; }
+    .segment-lit { fill: #39d353; opacity: 0.9; }
+    .segment-dim { fill: #21262d; }
+  </style>
+
+  <!-- Deep Canvas Background -->
+  <rect width="1350" height="860" rx="16" fill="url(#bgGrad)" stroke="#30363d" stroke-width="1.5" />
+
+  <!-- Grid Pattern Overlay -->
+  <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+    <circle cx="2" cy="2" r="0.8" fill="#30363d" opacity="0.4" />
+  </pattern>
+  <rect width="1350" height="860" rx="16" fill="url(#grid)" />
+
+  <!-- ==================== HEADER BAR ==================== -->
+  <g transform="translate(30, 25)">
+    <!-- Logo Badge -->
+    <rect x="0" y="0" width="46" height="46" rx="10" fill="#1f6feb" opacity="0.2" />
+    <rect x="0" y="0" width="46" height="46" rx="10" fill="none" stroke="#58a6ff" stroke-width="1.5" />
+    <text x="23" y="30" font-size="22" font-weight="900" fill="#58a6ff" text-anchor="middle">⏱</text>
+
+    <!-- Title and Meta -->
+    <text x="60" y="24" class="title">ESP8266 BIG CLOCK - HARDWARE SCHEMATIC</text>
+    <text x="60" y="42" class="subtitle">4-Digit Shift Register Display Controller (74HC595 / TPIC6B595) with High-Side PWM Dimming</text>
+
+    <!-- Signal Legend -->
+    <g transform="translate(730, 8)">
+      <rect x="0" y="0" width="550" height="34" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1" />
+      
+      <!-- Data (Green) -->
+      <line x1="15" y1="17" x2="35" y2="17" stroke="#3fb950" stroke-width="3" />
+      <circle cx="25" cy="17" r="3.5" fill="#3fb950" />
+      <text x="42" y="21" class="legend-text"><tspan font-weight="bold" fill="#3fb950">DATA</tspan> (GPIO12)</text>
+
+      <!-- Latch (Amber) -->
+      <line x1="135" y1="17" x2="155" y2="17" stroke="#d29922" stroke-width="3" />
+      <circle cx="145" cy="17" r="3.5" fill="#d29922" />
+      <text x="162" y="21" class="legend-text"><tspan font-weight="bold" fill="#d29922">LATCH</tspan> (GPIO13)</text>
+
+      <!-- Clock (Cyan) -->
+      <line x1="260" y1="17" x2="280" y2="17" stroke="#58a6ff" stroke-width="3" />
+      <circle cx="270" cy="17" r="3.5" fill="#58a6ff" />
+      <text x="287" y="21" class="legend-text"><tspan font-weight="bold" fill="#58a6ff">CLOCK</tspan> (GPIO14)</text>
+
+      <!-- PWM VCC (Purple) -->
+      <line x1="390" y1="17" x2="410" y2="17" stroke="#bc8cff" stroke-width="3" />
+      <circle cx="400" cy="17" r="3.5" fill="#bc8cff" />
+      <text x="417" y="21" class="legend-text"><tspan font-weight="bold" fill="#bc8cff">PWM VCC</tspan> (GPIO16)</text>
+    </g>
+  </g>
+
+  <!-- ==================== POWER SUPPLY BLOCK ==================== -->
+  <g transform="translate(35, 95)">
+    <rect width="260" height="150" rx="10" fill="url(#pwrGrad)" stroke="#f85149" stroke-width="1.5" filter="url(#boxShadow)" />
+    <path d="M 0 10 Q 0 0 10 0 L 250 0 Q 260 0 260 10 L 260 30 L 0 30 Z" fill="#da3633" opacity="0.3" />
+    <text x="15" y="21" class="header-box">POWER REGULATION</text>
+    <text x="245" y="21" font-size="11" fill="#f85149" font-weight="bold" text-anchor="end">12V / 5V / 3.3V</text>
+
+    <!-- DC Jack In -->
+    <rect x="15" y="45" width="55" height="32" rx="4" fill="#21262d" stroke="#f85149" stroke-width="1" />
+    <text x="42" y="60" font-size="10" fill="#f0f6fc" font-weight="bold" text-anchor="middle">DC JACK</text>
+    <text x="42" y="72" font-size="9" fill="#8b949e" text-anchor="middle">9V - 12V IN</text>
+
+    <!-- DC Buck Converter -->
+    <rect x="110" y="45" width="135" height="42" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1.2" />
+    <text x="177" y="62" font-size="11" fill="#f0f6fc" font-weight="bold" text-anchor="middle">Buck Step-Down</text>
+    <text x="177" y="76" font-size="9.5" fill="#58a6ff" text-anchor="middle">LM2596 / MP1584 (5V OUT)</text>
+
+    <!-- Power distribution labels -->
+    <path d="M 70 55 L 110 55" stroke="#ff7b72" stroke-width="2" />
+    <path d="M 70 68 L 110 68" stroke="#8b949e" stroke-width="2" stroke-dasharray="3,2" />
+
+    <!-- 12V Main Rail Pin -->
+    <circle cx="245" cy="115" r="4" fill="#ff7b72" />
+    <text x="235" y="119" font-size="11" font-weight="bold" fill="#ff7b72" text-anchor="end">+12V Rail (LED Anodes)</text>
+
+    <!-- 5V Rail Pin -->
+    <circle cx="245" cy="135" r="4" fill="#f0883e" />
+    <text x="235" y="139" font-size="11" font-weight="bold" fill="#f0883e" text-anchor="end">+5V Rail (ESP VIN &amp; Logic)</text>
+  </g>
+
+  <!-- ==================== MICROCONTROLLER BLOCK (ESP8266) ==================== -->
+  <g transform="translate(35, 275)">
+    <rect width="260" height="390" rx="12" fill="url(#mcuGrad)" stroke="#58a6ff" stroke-width="1.8" filter="url(#boxShadow)" />
+    
+    <!-- MCU Header -->
+    <path d="M 0 12 Q 0 0 12 0 L 248 0 Q 260 0 260 12 L 260 38 L 0 38 Z" fill="#1f6feb" opacity="0.3" />
+    <text x="15" y="24" class="header-box">ESP8266 (ESP-12E)</text>
+    <text x="245" y="24" font-size="11" fill="#79c0ff" font-weight="bold" text-anchor="end">NodeMCU / D1 Mini</text>
+
+    <!-- WiFi Antenna Graphic -->
+    <path d="M 220 52 A 16 16 0 0 1 248 52" stroke="#58a6ff" stroke-width="1.8" fill="none" opacity="0.7" />
+    <path d="M 225 57 A 10 10 0 0 1 243 57" stroke="#58a6ff" stroke-width="1.8" fill="none" opacity="0.8" />
+    <circle cx="234" cy="62" r="2" fill="#58a6ff" />
+    <text x="210" y="62" font-size="9" fill="#8b949e" text-anchor="end">Wi-Fi (NTP / Web)</text>
+
+    <!-- Pins Box Left (Power / System) -->
+    <g transform="translate(15, 80)">
+      <rect x="0" y="0" width="80" height="25" rx="4" fill="#21262d" />
+      <text x="8" y="17" class="pin-label">VIN (5V)</text>
+      <circle cx="2" cy="12" r="3" fill="#f0883e" />
+
+      <rect x="0" y="35" width="80" height="25" rx="4" fill="#21262d" />
+      <text x="8" y="52" class="pin-label">GND</text>
+      <circle cx="2" cy="47" r="3" fill="#8b949e" />
+
+      <rect x="0" y="70" width="80" height="25" rx="4" fill="#21262d" />
+      <text x="8" y="87" class="pin-label">RST / FLASH</text>
+
+      <rect x="0" y="105" width="80" height="25" rx="4" fill="#21262d" />
+      <text x="8" y="122" class="pin-label">3.3V OUT</text>
+    </g>
+
+    <!-- Pins Box Right (Active Signals) -->
+    <g transform="translate(140, 80)">
+      <!-- GPIO12 / D6 (DATA_PIN) -->
+      <rect x="0" y="0" width="105" height="34" rx="5" fill="#1b2e1f" stroke="#3fb950" stroke-width="1" />
+      <text x="10" y="16" class="pin-name" fill="#3fb950">GPIO 12</text>
+      <text x="10" y="28" font-size="9.5" fill="#7ee787">D6 (DATA)</text>
+      <circle cx="105" cy="17" r="4.5" fill="#3fb950" filter="url(#glowGreen)" />
+
+      <!-- GPIO13 / D7 (LATCH_PIN) -->
+      <rect x="0" y="45" width="105" height="34" rx="5" fill="#2c2214" stroke="#d29922" stroke-width="1" />
+      <text x="10" y="61" class="pin-name" fill="#d29922">GPIO 13</text>
+      <text x="10" y="73" font-size="9.5" fill="#e3b341">D7 (LATCH)</text>
+      <circle cx="105" cy="62" r="4.5" fill="#d29922" filter="url(#glowAmber)" />
+
+      <!-- GPIO14 / D5 (CLOCK_PIN) -->
+      <rect x="0" y="90" width="105" height="34" rx="5" fill="#14263b" stroke="#58a6ff" stroke-width="1" />
+      <text x="10" y="106" class="pin-name" fill="#58a6ff">GPIO 14</text>
+      <text x="10" y="118" font-size="9.5" fill="#79c0ff">D5 (CLOCK)</text>
+      <circle cx="105" cy="107" r="4.5" fill="#58a6ff" filter="url(#glowCyan)" />
+
+      <!-- GPIO16 / D0 (DIGITS_VCC PWM) -->
+      <rect x="0" y="135" width="105" height="34" rx="5" fill="#261b36" stroke="#bc8cff" stroke-width="1" />
+      <text x="10" y="151" class="pin-name" fill="#bc8cff">GPIO 16</text>
+      <text x="10" y="163" font-size="9.5" fill="#d2a8ff">D0 (PWM VCC)</text>
+      <circle cx="105" cy="152" r="4.5" fill="#bc8cff" filter="url(#glowPurple)" />
+    </g>
+
+    <!-- Firmware Summary Card inside MCU box -->
+    <rect x="15" y="280" width="230" height="95" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1" />
+    <text x="25" y="300" font-size="11" font-weight="bold" fill="#f0f6fc">Firmware Modules:</text>
+    <text x="25" y="318" font-size="10" fill="#8b949e">• NTPClient (Auto-sync pool.ntp.org)</text>
+    <text x="25" y="333" font-size="10" fill="#8b949e">• WebSockets Server (Live Display Mirror :81)</text>
+    <text x="25" y="348" font-size="10" fill="#8b949e">• ESP8266WebServer (Dark Web Dashboard :80)</text>
+    <text x="25" y="363" font-size="10" fill="#8b949e">• ArduinoOTA (Over-The-Air firmware flash)</text>
+  </g>
+
+  <!-- ==================== PWM HIGH-SIDE SWITCH (BRIGHTNESS CONTROL) ==================== -->
+  <g transform="translate(345, 95)">
+    <rect width="260" height="150" rx="10" fill="#1a162b" stroke="#bc8cff" stroke-width="1.5" filter="url(#boxShadow)" />
+    <path d="M 0 10 Q 0 0 10 0 L 250 0 Q 260 0 260 10 L 260 30 L 0 30 Z" fill="#8957e5" opacity="0.3" />
+    <text x="15" y="21" class="header-box">HIGH-SIDE PWM DIMMER</text>
+    <text x="245" y="21" font-size="10" fill="#d2a8ff" font-weight="bold" text-anchor="end">GPIO16 PWM</text>
+
+    <!-- Driver Schematic Graphic -->
+    <!-- Base resistor -->
+    <rect x="20" y="55" width="45" height="18" rx="2" fill="#21262d" stroke="#8b949e" stroke-width="1" />
+    <text x="42" y="68" font-size="9" fill="#c9d1d9" text-anchor="middle">1kΩ (R1)</text>
+    <line x1="0" y1="64" x2="20" y2="64" stroke="#bc8cff" stroke-width="2" />
+
+    <!-- Q1 NPN Transistor -->
+    <circle cx="85" cy="64" r="14" fill="#161b22" stroke="#bc8cff" stroke-width="1" />
+    <text x="85" y="68" font-size="9" font-weight="bold" fill="#f0f6fc" text-anchor="middle">2N2222</text>
+    <text x="85" y="87" font-size="8" fill="#8b949e" text-anchor="middle">Q1 (NPN)</text>
+    <line x1="65" y1="64" x2="71" y2="64" stroke="#bc8cff" stroke-width="2" />
+    <!-- Emitter to GND -->
+    <line x1="85" y1="78" x2="85" y2="105" stroke="#8b949e" stroke-width="1.8" />
+    <text x="92" y="103" font-size="9" fill="#8b949e">GND</text>
+
+    <!-- Q2 P-MOSFET -->
+    <rect x="150" y="45" width="95" height="52" rx="6" fill="#161b22" stroke="#ff7b72" stroke-width="1.2" />
+    <text x="197" y="63" font-size="10" font-weight="bold" fill="#ff7b72" text-anchor="middle">P-MOSFET (Q2)</text>
+    <text x="197" y="78" font-size="9" fill="#8b949e" text-anchor="middle">AO3401 / IRF9540</text>
+    <text x="197" y="90" font-size="8.5" fill="#f85149" text-anchor="middle">+12V SW Rail Out</text>
+
+    <!-- 10k Pullup resistor -->
+    <rect x="110" y="95" width="30" height="14" rx="2" fill="#21262d" stroke="#8b949e" stroke-width="1" />
+    <text x="125" y="105" font-size="8" fill="#c9d1d9" text-anchor="middle">10k</text>
+    <line x1="125" y1="64" x2="125" y2="95" stroke="#ff7b72" stroke-width="1.2" />
+    <line x1="99" y1="64" x2="150" y2="64" stroke="#bc8cff" stroke-width="1.8" />
+
+    <text x="15" y="135" font-size="9.5" fill="#8b949e">analogWrite(16, bright) controls high-side VCC rail</text>
+  </g>
+
+  <!-- ==================== CASCADED SHIFT REGISTERS (74HC595 / TPIC6B595) ==================== -->
+  
+  <!-- U1: Digit 4 (Hours Tens) -->
+  <g transform="translate(345, 275)">
+    <rect width="180" height="390" rx="10" fill="url(#chipGrad)" stroke="#30363d" stroke-width="1.5" filter="url(#boxShadow)" />
+    <!-- Header -->
+    <path d="M 0 10 Q 0 0 10 0 L 170 0 Q 180 0 180 10 L 180 32 L 0 32 Z" fill="#21262d" />
+    <text x="10" y="21" class="chip-title">U1: SHIFT REG 1</text>
+    <text x="170" y="21" font-size="10" fill="#58a6ff" font-weight="bold" text-anchor="end">74HC595</text>
+    <text x="90" y="48" font-size="11" font-weight="bold" fill="#ff7b72" text-anchor="middle">[Hours Tens - D4]</text>
+
+    <!-- Pins Left -->
+    <g transform="translate(0, 65)">
+      <!-- SER (Data In) -->
+      <rect x="0" y="0" width="55" height="22" fill="#1b2e1f" />
+      <text x="8" y="15" class="pin-name" fill="#3fb950">14: SER</text>
+      <circle cx="0" cy="11" r="3.5" fill="#3fb950" />
+
+      <!-- SRCLK (Clock) -->
+      <rect x="0" y="32" width="55" height="22" fill="#14263b" />
+      <text x="8" y="47" class="pin-name" fill="#58a6ff">11: SCK</text>
+      <circle cx="0" cy="43" r="3.5" fill="#58a6ff" />
+
+      <!-- RCLK (Latch) -->
+      <rect x="0" y="64" width="55" height="22" fill="#2c2214" />
+      <text x="8" y="79" class="pin-name" fill="#d29922">12: LCK</text>
+      <circle cx="0" cy="75" r="3.5" fill="#d29922" />
+
+      <!-- OE (GND) -->
+      <rect x="0" y="96" width="55" height="22" fill="#21262d" />
+      <text x="8" y="111" class="pin-name" fill="#8b949e">13: /OE</text>
+      <text x="60" y="111" font-size="9" fill="#8b949e">→ GND</text>
+
+      <!-- MR (VCC) -->
+      <rect x="0" y="128" width="55" height="22" fill="#21262d" />
+      <text x="8" y="143" class="pin-name" fill="#f0883e">10: /MR</text>
+      <text x="60" y="143" font-size="9" fill="#f0883e">→ +5V</text>
+    </g>
+
+    <!-- Cascade Out (QH') Pin Right -->
+    <g transform="translate(125, 65)">
+      <rect x="0" y="0" width="55" height="22" fill="#1b2e1f" stroke="#3fb950" stroke-width="0.8" />
+      <text x="47" y="15" class="pin-name" fill="#3fb950" text-anchor="end">9: QH'</text>
+      <circle cx="55" cy="11" r="3.5" fill="#3fb950" />
+    </g>
+
+    <!-- Parallel Outputs Q0..Q7 Right -->
+    <g transform="translate(120, 105)">
+      <text x="50" y="15" font-size="9.5" fill="#8b949e" text-anchor="end">Q0 (A) - 15</text>
+      <text x="50" y="35" font-size="9.5" fill="#8b949e" text-anchor="end">Q1 (B) - 1</text>
+      <text x="50" y="55" font-size="9.5" fill="#8b949e" text-anchor="end">Q2 (C) - 2</text>
+      <text x="50" y="75" font-size="9.5" fill="#8b949e" text-anchor="end">Q3 (D) - 3</text>
+      <text x="50" y="95" font-size="9.5" fill="#8b949e" text-anchor="end">Q4 (E) - 4</text>
+      <text x="50" y="115" font-size="9.5" fill="#8b949e" text-anchor="end">Q5 (F) - 5</text>
+      <text x="50" y="135" font-size="9.5" fill="#8b949e" text-anchor="end">Q6 (G) - 6</text>
+      <text x="50" y="155" font-size="9.5" font-weight="bold" fill="#d2a8ff" text-anchor="end">Q7 (COLON) - 7</text>
+    </g>
+
+    <!-- Power Pins Box -->
+    <rect x="15" y="335" width="150" height="42" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1" />
+    <text x="25" y="352" font-size="9.5" fill="#f0883e">Pin 16 (VCC) : +5V</text>
+    <text x="25" y="367" font-size="9.5" fill="#8b949e">Pin 8 (GND) : System GND</text>
+  </g>
+
+  <!-- U2: Digit 3 (Hours Ones) -->
+  <g transform="translate(565, 275)">
+    <rect width="180" height="390" rx="10" fill="url(#chipGrad)" stroke="#30363d" stroke-width="1.5" filter="url(#boxShadow)" />
+    <!-- Header -->
+    <path d="M 0 10 Q 0 0 10 0 L 170 0 Q 180 0 180 10 L 180 32 L 0 32 Z" fill="#21262d" />
+    <text x="10" y="21" class="chip-title">U2: SHIFT REG 2</text>
+    <text x="170" y="21" font-size="10" fill="#58a6ff" font-weight="bold" text-anchor="end">74HC595</text>
+    <text x="90" y="48" font-size="11" font-weight="bold" fill="#ff7b72" text-anchor="middle">[Hours Ones - D3]</text>
+
+    <!-- Pins Left -->
+    <g transform="translate(0, 65)">
+      <rect x="0" y="0" width="55" height="22" fill="#1b2e1f" />
+      <text x="8" y="15" class="pin-name" fill="#3fb950">14: SER</text>
+      <circle cx="0" cy="11" r="3.5" fill="#3fb950" />
+
+      <rect x="0" y="32" width="55" height="22" fill="#14263b" />
+      <text x="8" y="47" class="pin-name" fill="#58a6ff">11: SCK</text>
+      <circle cx="0" cy="43" r="3.5" fill="#58a6ff" />
+
+      <rect x="0" y="64" width="55" height="22" fill="#2c2214" />
+      <text x="8" y="79" class="pin-name" fill="#d29922">12: LCK</text>
+      <circle cx="0" cy="75" r="3.5" fill="#d29922" />
+    </g>
+
+    <!-- Cascade Out (QH') Pin Right -->
+    <g transform="translate(125, 65)">
+      <rect x="0" y="0" width="55" height="22" fill="#1b2e1f" stroke="#3fb950" stroke-width="0.8" />
+      <text x="47" y="15" class="pin-name" fill="#3fb950" text-anchor="end">9: QH'</text>
+      <circle cx="55" cy="11" r="3.5" fill="#3fb950" />
+    </g>
+
+    <!-- Outputs Q0..Q7 Right -->
+    <g transform="translate(120, 105)">
+      <text x="50" y="15" font-size="9.5" fill="#8b949e" text-anchor="end">Q0 (A)</text>
+      <text x="50" y="35" font-size="9.5" fill="#8b949e" text-anchor="end">Q1 (B)</text>
+      <text x="50" y="55" font-size="9.5" fill="#8b949e" text-anchor="end">Q2 (C)</text>
+      <text x="50" y="75" font-size="9.5" fill="#8b949e" text-anchor="end">Q3 (D)</text>
+      <text x="50" y="95" font-size="9.5" fill="#8b949e" text-anchor="end">Q4 (E)</text>
+      <text x="50" y="115" font-size="9.5" fill="#8b949e" text-anchor="end">Q5 (F)</text>
+      <text x="50" y="135" font-size="9.5" fill="#8b949e" text-anchor="end">Q6 (G)</text>
+      <text x="50" y="155" font-size="9.5" fill="#8b949e" text-anchor="end">Q7 (DP)</text>
+    </g>
+
+    <rect x="15" y="335" width="150" height="42" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1" />
+    <text x="25" y="352" font-size="9.5" fill="#f0883e">Pin 16: +5V  |  Pin 10: +5V</text>
+    <text x="25" y="367" font-size="9.5" fill="#8b949e">Pin 8: GND  |  Pin 13: GND</text>
+  </g>
+
+  <!-- U3: Digit 2 (Minutes Tens) -->
+  <g transform="translate(785, 275)">
+    <rect width="180" height="390" rx="10" fill="url(#chipGrad)" stroke="#30363d" stroke-width="1.5" filter="url(#boxShadow)" />
+    <!-- Header -->
+    <path d="M 0 10 Q 0 0 10 0 L 170 0 Q 180 0 180 10 L 180 32 L 0 32 Z" fill="#21262d" />
+    <text x="10" y="21" class="chip-title">U3: SHIFT REG 3</text>
+    <text x="170" y="21" font-size="10" fill="#58a6ff" font-weight="bold" text-anchor="end">74HC595</text>
+    <text x="90" y="48" font-size="11" font-weight="bold" fill="#ff7b72" text-anchor="middle">[Minutes Tens - D2]</text>
+
+    <!-- Pins Left -->
+    <g transform="translate(0, 65)">
+      <rect x="0" y="0" width="55" height="22" fill="#1b2e1f" />
+      <text x="8" y="15" class="pin-name" fill="#3fb950">14: SER</text>
+      <circle cx="0" cy="11" r="3.5" fill="#3fb950" />
+
+      <rect x="0" y="32" width="55" height="22" fill="#14263b" />
+      <text x="8" y="47" class="pin-name" fill="#58a6ff">11: SCK</text>
+      <circle cx="0" cy="43" r="3.5" fill="#58a6ff" />
+
+      <rect x="0" y="64" width="55" height="22" fill="#2c2214" />
+      <text x="8" y="79" class="pin-name" fill="#d29922">12: LCK</text>
+      <circle cx="0" cy="75" r="3.5" fill="#d29922" />
+    </g>
+
+    <!-- Cascade Out (QH') Pin Right -->
+    <g transform="translate(125, 65)">
+      <rect x="0" y="0" width="55" height="22" fill="#1b2e1f" stroke="#3fb950" stroke-width="0.8" />
+      <text x="47" y="15" class="pin-name" fill="#3fb950" text-anchor="end">9: QH'</text>
+      <circle cx="55" cy="11" r="3.5" fill="#3fb950" />
+    </g>
+
+    <!-- Outputs Q0..Q7 Right -->
+    <g transform="translate(120, 105)">
+      <text x="50" y="15" font-size="9.5" fill="#8b949e" text-anchor="end">Q0 (A)</text>
+      <text x="50" y="35" font-size="9.5" fill="#8b949e" text-anchor="end">Q1 (B)</text>
+      <text x="50" y="55" font-size="9.5" fill="#8b949e" text-anchor="end">Q2 (C)</text>
+      <text x="50" y="75" font-size="9.5" fill="#8b949e" text-anchor="end">Q3 (D)</text>
+      <text x="50" y="95" font-size="9.5" fill="#8b949e" text-anchor="end">Q4 (E)</text>
+      <text x="50" y="115" font-size="9.5" fill="#8b949e" text-anchor="end">Q5 (F)</text>
+      <text x="50" y="135" font-size="9.5" fill="#8b949e" text-anchor="end">Q6 (G)</text>
+      <text x="50" y="155" font-size="9.5" fill="#8b949e" text-anchor="end">Q7 (DP)</text>
+    </g>
+
+    <rect x="15" y="335" width="150" height="42" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1" />
+    <text x="25" y="352" font-size="9.5" fill="#f0883e">Pin 16: +5V  |  Pin 10: +5V</text>
+    <text x="25" y="367" font-size="9.5" fill="#8b949e">Pin 8: GND  |  Pin 13: GND</text>
+  </g>
+
+  <!-- U4: Digit 1 (Minutes Ones) -->
+  <g transform="translate(1005, 275)">
+    <rect width="180" height="390" rx="10" fill="url(#chipGrad)" stroke="#30363d" stroke-width="1.5" filter="url(#boxShadow)" />
+    <!-- Header -->
+    <path d="M 0 10 Q 0 0 10 0 L 170 0 Q 180 0 180 10 L 180 32 L 0 32 Z" fill="#21262d" />
+    <text x="10" y="21" class="chip-title">U4: SHIFT REG 4</text>
+    <text x="170" y="21" font-size="10" fill="#58a6ff" font-weight="bold" text-anchor="end">74HC595</text>
+    <text x="90" y="48" font-size="11" font-weight="bold" fill="#ff7b72" text-anchor="middle">[Minutes Ones - D1]</text>
+
+    <!-- Pins Left -->
+    <g transform="translate(0, 65)">
+      <rect x="0" y="0" width="55" height="22" fill="#1b2e1f" />
+      <text x="8" y="15" class="pin-name" fill="#3fb950">14: SER</text>
+      <circle cx="0" cy="11" r="3.5" fill="#3fb950" />
+
+      <rect x="0" y="32" width="55" height="22" fill="#14263b" />
+      <text x="8" y="47" class="pin-name" fill="#58a6ff">11: SCK</text>
+      <circle cx="0" cy="43" r="3.5" fill="#58a6ff" />
+
+      <rect x="0" y="64" width="55" height="22" fill="#2c2214" />
+      <text x="8" y="79" class="pin-name" fill="#d29922">12: LCK</text>
+      <circle cx="0" cy="75" r="3.5" fill="#d29922" />
+    </g>
+
+    <!-- Outputs Q0..Q7 Right -->
+    <g transform="translate(120, 105)">
+      <text x="50" y="15" font-size="9.5" fill="#8b949e" text-anchor="end">Q0 (A)</text>
+      <text x="50" y="35" font-size="9.5" fill="#8b949e" text-anchor="end">Q1 (B)</text>
+      <text x="50" y="55" font-size="9.5" fill="#8b949e" text-anchor="end">Q2 (C)</text>
+      <text x="50" y="75" font-size="9.5" fill="#8b949e" text-anchor="end">Q3 (D)</text>
+      <text x="50" y="95" font-size="9.5" fill="#8b949e" text-anchor="end">Q4 (E)</text>
+      <text x="50" y="115" font-size="9.5" fill="#8b949e" text-anchor="end">Q5 (F)</text>
+      <text x="50" y="135" font-size="9.5" fill="#8b949e" text-anchor="end">Q6 (G)</text>
+      <text x="50" y="155" font-size="9.5" fill="#8b949e" text-anchor="end">Q7 (DP)</text>
+    </g>
+
+    <rect x="15" y="335" width="150" height="42" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1" />
+    <text x="25" y="352" font-size="9.5" fill="#f0883e">Pin 16: +5V  |  Pin 10: +5V</text>
+    <text x="25" y="367" font-size="9.5" fill="#8b949e">Pin 8: GND  |  Pin 13: GND</text>
+  </g>
+
+  <!-- ==================== WIRING BUSES & CONNECTIONS ==================== -->
+
+  <!-- DATA BUS: ESP GPIO12 -> U1 Pin 14 -->
+  <path d="M 245 292 L 345 292" stroke="#3fb950" stroke-width="2.5" fill="none" filter="url(#glowGreen)" />
+  <circle cx="245" cy="292" r="3.5" fill="#3fb950" />
+  <circle cx="345" cy="292" r="3.5" fill="#3fb950" />
+
+  <!-- DATA DAISY-CHAIN: U1 QH' -> U2 SER -->
+  <path d="M 525 286 L 565 286" stroke="#3fb950" stroke-width="2.5" fill="none" filter="url(#glowGreen)" />
+  <circle cx="525" cy="286" r="3" fill="#3fb950" />
+  <circle cx="565" cy="286" r="3" fill="#3fb950" />
+
+  <!-- DATA DAISY-CHAIN: U2 QH' -> U3 SER -->
+  <path d="M 745 286 L 785 286" stroke="#3fb950" stroke-width="2.5" fill="none" filter="url(#glowGreen)" />
+  <circle cx="745" cy="286" r="3" fill="#3fb950" />
+  <circle cx="785" cy="286" r="3" fill="#3fb950" />
+
+  <!-- DATA DAISY-CHAIN: U3 QH' -> U4 SER -->
+  <path d="M 965 286 L 1005 286" stroke="#3fb950" stroke-width="2.5" fill="none" filter="url(#glowGreen)" />
+  <circle cx="965" cy="286" r="3" fill="#3fb950" />
+  <circle cx="1005" cy="286" r="3" fill="#3fb950" />
+
+  <!-- LATCH BUS: ESP GPIO13 -> Common Latch Line across U1, U2, U3, U4 -->
+  <!-- Main Trunk -->
+  <path d="M 245 337 L 315 337 L 315 690 L 1010 690" stroke="#d29922" stroke-width="2.2" fill="none" />
+  <!-- Drop to U1 -->
+  <path d="M 315 350 L 345 350" stroke="#d29922" stroke-width="2" fill="none" />
+  <circle cx="315" cy="350" r="3" fill="#d29922" />
+  <circle cx="345" cy="350" r="3" fill="#d29922" />
+  <!-- Drop to U2 -->
+  <path d="M 545 690 L 545 350 L 565 350" stroke="#d29922" stroke-width="2" fill="none" />
+  <circle cx="545" cy="690" r="3" fill="#d29922" />
+  <circle cx="565" cy="350" r="3" fill="#d29922" />
+  <!-- Drop to U3 -->
+  <path d="M 765 690 L 765 350 L 785 350" stroke="#d29922" stroke-width="2" fill="none" />
+  <circle cx="765" cy="690" r="3" fill="#d29922" />
+  <circle cx="785" cy="350" r="3" fill="#d29922" />
+  <!-- Drop to U4 -->
+  <path d="M 985 690 L 985 350 L 1005 350" stroke="#d29922" stroke-width="2" fill="none" />
+  <circle cx="985" cy="690" r="3" fill="#d29922" />
+  <circle cx="1005" cy="350" r="3" fill="#d29922" />
+
+  <!-- CLOCK BUS: ESP GPIO14 -> Common Clock Line across U1, U2, U3, U4 -->
+  <!-- Main Trunk -->
+  <path d="M 245 382 L 325 382 L 325 715 L 1020 715" stroke="#58a6ff" stroke-width="2.2" fill="none" />
+  <!-- Drop to U1 -->
+  <path d="M 325 318 L 345 318" stroke="#58a6ff" stroke-width="2" fill="none" />
+  <circle cx="325" cy="318" r="3" fill="#58a6ff" />
+  <circle cx="345" cy="318" r="3" fill="#58a6ff" />
+  <!-- Drop to U2 -->
+  <path d="M 555 715 L 555 318 L 565 318" stroke="#58a6ff" stroke-width="2" fill="none" />
+  <circle cx="555" cy="715" r="3" fill="#58a6ff" />
+  <circle cx="565" cy="318" r="3" fill="#58a6ff" />
+  <!-- Drop to U3 -->
+  <path d="M 775 715 L 775 318 L 785 318" stroke="#58a6ff" stroke-width="2" fill="none" />
+  <circle cx="775" cy="715" r="3" fill="#58a6ff" />
+  <circle cx="785" cy="318" r="3" fill="#58a6ff" />
+  <!-- Drop to U4 -->
+  <path d="M 995 715 L 995 318 L 1005 318" stroke="#58a6ff" stroke-width="2" fill="none" />
+  <circle cx="995" cy="715" r="3" fill="#58a6ff" />
+  <circle cx="1005" cy="318" r="3" fill="#58a6ff" />
+
+  <!-- PWM VCC BUS: ESP GPIO16 -> High-Side Switch -->
+  <path d="M 245 427 L 300 427 L 300 159 L 345 159" stroke="#bc8cff" stroke-width="2.2" fill="none" filter="url(#glowPurple)" />
+  <circle cx="245" cy="427" r="3.5" fill="#bc8cff" />
+  <circle cx="345" cy="159" r="3.5" fill="#bc8cff" />
+
+  <!-- Switched DIGITS_VCC Power Bus from High-Side Switch to Displays -->
+  <path d="M 605 159 L 1220 159 L 1220 270" stroke="#ff7b72" stroke-width="3" fill="none" />
+  <text x="910" y="152" font-size="11" font-weight="bold" fill="#ff7b72" text-anchor="middle">Switched +12V/VCC Rail (To Display Common Anodes)</text>
+
+  <!-- ==================== DISPLAY MODULES (7-SEGMENT DIGITS) ==================== -->
+  <g transform="translate(680, 95)">
+    <!-- Info Badge for Big 7-Segment Panels -->
+    <rect x="0" y="0" width="635" height="150" rx="10" fill="url(#dispGrad)" stroke="#30363d" stroke-width="1.5" />
+    <path d="M 0 10 Q 0 0 10 0 L 625 0 Q 635 0 635 10 L 635 30 L 0 30 Z" fill="#21262d" />
+    <text x="15" y="21" class="header-box">4-DIGIT 7-SEGMENT DISPLAY PANELS</text>
+    <text x="620" y="21" font-size="10.5" fill="#39d353" font-weight="bold" text-anchor="end">Common Anode (+) Driven</text>
+
+    <!-- Mini 7-Segment Visualizers -->
+    
+    <!-- Digit 4 (H10) -->
+    <g transform="translate(50, 42)">
+      <rect width="70" height="95" rx="6" fill="#0d1117" stroke="#21262d" stroke-width="1.2" />
+      <text x="35" y="90" font-size="10" font-weight="bold" fill="#8b949e" text-anchor="middle">D4 (H10)</text>
+      <!-- Segment segments forming '1' or '2' -->
+      <!-- A --> <rect x="20" y="10" width="30" height="5" rx="2" class="segment-lit" />
+      <!-- B --> <rect x="47" y="16" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- C --> <rect x="47" y="45" width="5" height="25" rx="2" class="segment-dim" />
+      <!-- D --> <rect x="20" y="69" width="30" height="5" rx="2" class="segment-lit" />
+      <!-- E --> <rect x="18" y="45" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- F --> <rect x="18" y="16" width="5" height="25" rx="2" class="segment-dim" />
+      <!-- G --> <rect x="20" y="39" width="30" height="5" rx="2" class="segment-lit" />
+    </g>
+
+    <!-- Digit 3 (H1) -->
+    <g transform="translate(140, 42)">
+      <rect width="70" height="95" rx="6" fill="#0d1117" stroke="#21262d" stroke-width="1.2" />
+      <text x="35" y="90" font-size="10" font-weight="bold" fill="#8b949e" text-anchor="middle">D3 (H1)</text>
+      <!-- Showing '2' -->
+      <!-- A --> <rect x="20" y="10" width="30" height="5" rx="2" class="segment-lit" />
+      <!-- B --> <rect x="47" y="16" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- C --> <rect x="47" y="45" width="5" height="25" rx="2" class="segment-dim" />
+      <!-- D --> <rect x="20" y="69" width="30" height="5" rx="2" class="segment-lit" />
+      <!-- E --> <rect x="18" y="45" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- F --> <rect x="18" y="16" width="5" height="25" rx="2" class="segment-dim" />
+      <!-- G --> <rect x="20" y="39" width="30" height="5" rx="2" class="segment-lit" />
+    </g>
+
+    <!-- Colon Dots -->
+    <g transform="translate(230, 42)">
+      <circle cx="10" cy="35" r="4.5" fill="#39d353" filter="url(#glowGreen)" />
+      <circle cx="10" cy="55" r="4.5" fill="#39d353" filter="url(#glowGreen)" />
+      <text x="10" y="90" font-size="9" fill="#d2a8ff" text-anchor="middle">COLON</text>
+    </g>
+
+    <!-- Digit 2 (M10) -->
+    <g transform="translate(265, 42)">
+      <rect width="70" height="95" rx="6" fill="#0d1117" stroke="#21262d" stroke-width="1.2" />
+      <text x="35" y="90" font-size="10" font-weight="bold" fill="#8b949e" text-anchor="middle">D2 (M10)</text>
+      <!-- Showing '4' -->
+      <!-- A --> <rect x="20" y="10" width="30" height="5" rx="2" class="segment-dim" />
+      <!-- B --> <rect x="47" y="16" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- C --> <rect x="47" y="45" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- D --> <rect x="20" y="69" width="30" height="5" rx="2" class="segment-dim" />
+      <!-- E --> <rect x="18" y="45" width="5" height="25" rx="2" class="segment-dim" />
+      <!-- F --> <rect x="18" y="16" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- G --> <rect x="20" y="39" width="30" height="5" rx="2" class="segment-lit" />
+    </g>
+
+    <!-- Digit 1 (M1) -->
+    <g transform="translate(355, 42)">
+      <rect width="70" height="95" rx="6" fill="#0d1117" stroke="#21262d" stroke-width="1.2" />
+      <text x="35" y="90" font-size="10" font-weight="bold" fill="#8b949e" text-anchor="middle">D1 (M1)</text>
+      <!-- Showing '5' -->
+      <!-- A --> <rect x="20" y="10" width="30" height="5" rx="2" class="segment-lit" />
+      <!-- B --> <rect x="47" y="16" width="5" height="25" rx="2" class="segment-dim" />
+      <!-- C --> <rect x="47" y="45" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- D --> <rect x="20" y="69" width="30" height="5" rx="2" class="segment-lit" />
+      <!-- E --> <rect x="18" y="45" width="5" height="25" rx="2" class="segment-dim" />
+      <!-- F --> <rect x="18" y="16" width="5" height="25" rx="2" class="segment-lit" />
+      <!-- G --> <rect x="20" y="39" width="30" height="5" rx="2" class="segment-lit" />
+    </g>
+
+    <!-- Driver Options Card inside panel -->
+    <g transform="translate(445, 38)">
+      <rect width="175" height="100" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1" />
+      <text x="12" y="20" font-size="10.5" font-weight="bold" fill="#58a6ff">Driver Options:</text>
+      <text x="12" y="40" font-size="9.5" fill="#f0f6fc">Option A: 74HC595 +</text>
+      <text x="22" y="55" font-size="9" fill="#8b949e">ULN2803 / NPN Sinks</text>
+      <text x="12" y="73" font-size="9.5" fill="#f0f6fc">Option B: TPIC6B595</text>
+      <text x="22" y="88" font-size="9" fill="#8b949e">Direct 50V DMOS Sinks</text>
+    </g>
+  </g>
+
+  <!-- ==================== PINOUT TABLE AT BOTTOM ==================== -->
+  <g transform="translate(35, 680)">
+    <rect width="1280" height="150" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.2" filter="url(#boxShadow)" />
+    
+    <!-- Table Header Bar -->
+    <path d="M 0 10 Q 0 0 10 0 L 1270 0 Q 1280 0 1280 10 L 1280 32 L 0 32 Z" fill="#21262d" />
+    <text x="20" y="21" class="header-box">HARDWARE WIRING &amp; PIN INTERFACE REFERENCE</text>
+
+    <!-- Table Columns -->
+    <g transform="translate(20, 48)">
+      <!-- Line 1: DATA -->
+      <circle cx="6" cy="6" r="4" fill="#3fb950" />
+      <text x="20" y="10" font-size="11" font-weight="bold" fill="#3fb950">GPIO12 (D6)</text>
+      <text x="120" y="10" font-size="11" fill="#8b949e">➔</text>
+      <text x="145" y="10" font-size="11" font-weight="bold" fill="#f0f6fc">DATA_PIN</text>
+      <text x="260" y="10" font-size="11" fill="#8b949e">➔</text>
+      <text x="285" y="10" font-size="11" fill="#c9d1d9">U1 Pin 14 (SER / DS) — Serial data input to first shift register</text>
+
+      <!-- Line 2: LATCH -->
+      <circle cx="6" cy="30" r="4" fill="#d29922" />
+      <text x="20" y="34" font-size="11" font-weight="bold" fill="#d29922">GPIO13 (D7)</text>
+      <text x="120" y="34" font-size="11" fill="#8b949e">➔</text>
+      <text x="145" y="34" font-size="11" font-weight="bold" fill="#f0f6fc">LATCH_PIN</text>
+      <text x="260" y="34" font-size="11" fill="#8b949e">➔</text>
+      <text x="285" y="34" font-size="11" fill="#c9d1d9">U1..U4 Pin 12 (RCLK / ST_CP) — Parallel latch pulse updates all 4 digits simultaneously</text>
+
+      <!-- Line 3: CLOCK -->
+      <circle cx="6" cy="54" r="4" fill="#58a6ff" />
+      <text x="20" y="58" font-size="11" font-weight="bold" fill="#58a6ff">GPIO14 (D5)</text>
+      <text x="120" y="58" font-size="11" fill="#8b949e">➔</text>
+      <text x="145" y="58" font-size="11" font-weight="bold" fill="#f0f6fc">CLOCK_PIN</text>
+      <text x="260" y="58" font-size="11" fill="#8b949e">➔</text>
+      <text x="285" y="58" font-size="11" fill="#c9d1d9">U1..U4 Pin 11 (SRCLK / SH_CP) — Serial shift clock pulse (MSB first, 32 bits total)</text>
+
+      <!-- Line 4: PWM VCC -->
+      <circle cx="6" cy="78" r="4" fill="#bc8cff" />
+      <text x="20" y="82" font-size="11" font-weight="bold" fill="#bc8cff">GPIO16 (D0)</text>
+      <text x="120" y="82" font-size="11" fill="#8b949e">➔</text>
+      <text x="145" y="82" font-size="11" font-weight="bold" fill="#f0f6fc">DIGITS_VCC</text>
+      <text x="260" y="82" font-size="11" fill="#8b949e">➔</text>
+      <text x="285" y="82" font-size="11" fill="#c9d1d9">Q1 Base (via 1kΩ) ➔ Q2 P-MOSFET Gate ➔ High-side PWM brightness dimmer (0 - 255)</text>
+    </g>
+  </g>
+</svg>
